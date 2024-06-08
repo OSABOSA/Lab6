@@ -30,12 +30,13 @@ public class Player {
         this.position = new Vector(x, y);
     }
 
-    public void checkBallCollision(List<Ball> balls) {
+    public boolean checkBallCollision(List<Ball> balls) {
         for (Ball ball : balls) {
             if (isColliding(ball)) {
-                System.out.println("Player collided with ball");
+                return true;
             }
         }
+        return false;
     }
 
     public boolean isColliding(Ball ball) {

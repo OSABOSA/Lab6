@@ -1,17 +1,18 @@
 package org.example;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseEvent;
-
 import javax.sound.sampled.*;
 import java.io.File;
 import java.io.IOException;
 
 public class GameApp extends JFrame {
-    private PlayArea playArea;
+    public PlayArea playArea;
     private Menu menu;
     private Clip backgroundMusic;
+    private boolean musicOn = true;
 
     public GameApp() {
         // Set up the frame
@@ -20,23 +21,24 @@ public class GameApp extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(null); // Use null layout for absolute positioning
 
+        // Center the frame on the screen
+        setLocationRelativeTo(null);
+        setResizable(false);
+
         // Create the play area
-        playArea = new PlayArea();
-        playArea.setBounds(0, 0, 800, 600);
+        playArea = new PlayArea(this);
+        playArea.setBounds(0, 0, 700, 500);
         add(playArea);
 
-        // Create the menu (initially hidden)
-        menu = new Menu();
-        menu.setBounds(200, 150, 400, 300);
-        menu.setVisible(false);
-        add(menu);
+        // Create the menu as a separate window
+        menu = new Menu(this);
 
         // Add a key listener to toggle the menu visibility
         addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
             public void keyPressed(java.awt.event.KeyEvent e) {
                 if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ESCAPE) {
-                    toggleMenu();
+                    showMenu("Resume", "Music on/off");
                 }
             }
         });
@@ -68,16 +70,29 @@ public class GameApp extends JFrame {
 
         SwingUtilities.invokeLater(() -> {
             setVisible(true);
-            startMusic();
-            playArea.start();
+            showMenu("Play", "Music on/off");
         });
     }
 
-    private void toggleMenu() {
-        menu.setVisible(!menu.isVisible());
-        playArea.setPaused(menu.isVisible());
-        if (menu.isVisible()) {
-            requestFocus();
+    public void showMenu(String... options) {
+        menu.setButtons(options);
+        menu.setVisible(true);
+        playArea.setPaused(true);
+        menu.toFront();
+        menu.requestFocus();
+    }
+
+    public void hideMenu() {
+        menu.setVisible(false);
+        playArea.setPaused(false);
+    }
+
+    public void toggleMusic() {
+        musicOn = !musicOn;
+        if (musicOn) {
+            startMusic();
+        } else {
+            stopMusic();
         }
     }
 
@@ -97,6 +112,7 @@ public class GameApp extends JFrame {
     public void dispose() {
         super.dispose();
         stopMusic(); // Stop music when the application is closed
+        menu.dispose(); // Dispose the menu window
     }
 
     public static void main(String[] args) {

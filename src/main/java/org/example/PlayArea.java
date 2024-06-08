@@ -1,4 +1,6 @@
+
 package org.example;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -9,18 +11,27 @@ public class PlayArea extends Wall {
     private List<Ball> balls;
     private List<Wall> walls;
     private Player player;
+    private GameApp gameApp;
+    private Timer ballAdditionTimer;
 
-    public void updatePlayerPosition(int x, int y) {
-        player.setPosition(x, y);
-    }
-
-    public PlayArea() {
+    public PlayArea(GameApp gameApp) {
+        this.gameApp = gameApp;
         paused = false;
         balls = new ArrayList<>(); // Initialize the list of balls
         walls = new ArrayList<>();
         walls.add(new Wall());
         player = new Player(0, 0, 10);
         setInbound(true);
+
+        // Add a new ball every 30 seconds
+        ballAdditionTimer = new Timer(30000, e -> {
+            addBall(new Ball(findEmptySpot(10), 10, Color.BLUE));
+        });
+        ballAdditionTimer.start();
+    }
+
+    public void updatePlayerPosition(int x, int y) {
+        player.setPosition(x, y);
     }
 
     @Override
@@ -59,34 +70,33 @@ public class PlayArea extends Wall {
         }
     }
 
-    Timer timer = new Timer(10, e -> {
+    Timer gameTimer = new Timer(10, e -> {
         if (!paused) {
             for (Ball ball : balls) {
                 ball.checkBoxCollision(walls);
                 ball.checkBallCollision(balls);
                 ball.move();
             }
-            player.checkBallCollision(balls);
+            if (player.checkBallCollision(balls)) {
+                System.out.println("Player collided with ball");
+                // Show menu and stop the game
+                gameApp.showMenu("Play Again", "Music on/off");
+            }
 
             repaint();
         }
     });
-
 
     public void addWall(Wall wall) {
         walls.add(wall);
     }
 
     public void start() {
-//        for (int i = 0; i < 3; i++) {
-//            for (int j = 0; j < 3; j++) {
-//                addWall(new Wall(100 + i * 100, 100 + j * 100, 50, 50, false));
-//            }
-//        }
+        balls.clear();
         for (int i = 0; i < 5; i++) {
             addBall(new Ball(findEmptySpot(10), 10, Color.BLUE));
         }
-        timer.start();
+        gameTimer.start();
     }
 
     public Vector findEmptySpot(double radius) {
@@ -117,4 +127,3 @@ public class PlayArea extends Wall {
         return spot;
     }
 }
-

@@ -3,36 +3,69 @@ package org.example;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-public class Menu extends JPanel {
-    public Menu() {
+public class Menu extends JFrame {
+    private GameApp gameApp;
+    private JPanel buttonPanel;
+
+    public Menu(GameApp gameApp) {
+        this.gameApp = gameApp;
+        setTitle("Menu");
+        setSize(400, 300);
         setLayout(new BorderLayout());
-        setBackground(new Color(0, 0, 0, 200)); // Semi-transparent background
+        setLocationRelativeTo(null); // Center the menu window
+        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 
         JLabel menuLabel = new JLabel("Menu", SwingConstants.CENTER);
         menuLabel.setForeground(Color.WHITE);
         menuLabel.setFont(new Font("Arial", Font.BOLD, 24));
         add(menuLabel, BorderLayout.NORTH);
 
-        JPanel buttonPanel = new JPanel();
+        buttonPanel = new JPanel();
         buttonPanel.setOpaque(false);
         buttonPanel.setLayout(new GridLayout(3, 1, 10, 10));
-
-        JButton resumeButton = new JButton("Resume");
-        resumeButton.addActionListener(e -> setVisible(false));
-
-        JButton settingsButton = new JButton("Settings");
-        settingsButton.addActionListener(e -> JOptionPane.showMessageDialog(Menu.this, "Settings clicked"));
-
-        JButton exitButton = new JButton("Exit");
-        exitButton.addActionListener(e -> System.exit(0));
-
-        buttonPanel.add(resumeButton);
-        buttonPanel.add(settingsButton);
-        buttonPanel.add(exitButton);
-
         add(buttonPanel, BorderLayout.CENTER);
-        setVisible(true);
+
+        addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyPressed(java.awt.event.KeyEvent e) {
+                if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ESCAPE) {
+                    gameApp.hideMenu();
+                }
+            }
+        });
+    }
+
+    public void setButtons(String... options) {
+        buttonPanel.removeAll();
+        for (String option : options) {
+            JButton button = new JButton(option);
+            button.addActionListener(this::handleButtonAction);
+            buttonPanel.add(button);
+        }
+        revalidate();
+        repaint();
+    }
+
+    private void handleButtonAction(ActionEvent e) {
+        String command = e.getActionCommand();
+        switch (command) {
+            case "Play":
+                gameApp.hideMenu();
+                gameApp.playArea.start();
+                break;
+            case "Resume":
+                gameApp.hideMenu();
+                break;
+            case "Play Again":
+                gameApp.hideMenu();
+                gameApp.playArea.start();
+                break;
+            case "Music on/off":
+                gameApp.toggleMusic();
+                break;
+            default:
+                break;
+        }
     }
 }
