@@ -1,13 +1,17 @@
 package org.example;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseEvent;
 
+import javax.sound.sampled.*;
+import java.io.File;
+import java.io.IOException;
+
 public class GameApp extends JFrame {
     private PlayArea playArea;
     private Menu menu;
+    private Clip backgroundMusic;
 
     public GameApp() {
         // Set up the frame
@@ -37,7 +41,18 @@ public class GameApp extends JFrame {
             }
         });
 
-        getContentPane().addMouseMotionListener(new MouseMotionListener() {
+        // Initialize the background music
+        try {
+            File musicFile = new File("music.wav");
+            AudioInputStream audioInput = AudioSystem.getAudioInputStream(musicFile);
+            backgroundMusic = AudioSystem.getClip();
+            backgroundMusic.open(audioInput);
+        } catch (LineUnavailableException | UnsupportedAudioFileException | IOException e) {
+            e.printStackTrace();
+        }
+
+        // Add mouse motion listener to play area
+        playArea.addMouseMotionListener(new MouseMotionListener() {
             @Override
             public void mouseDragged(MouseEvent e) {
                 // Update cursor position on dragging
@@ -51,9 +66,11 @@ public class GameApp extends JFrame {
             }
         });
 
-        setFocusable(true);
-        setFocusTraversalKeysEnabled(false);
-
+        SwingUtilities.invokeLater(() -> {
+            setVisible(true);
+            startMusic();
+            playArea.start();
+        });
     }
 
     private void toggleMenu() {
@@ -64,11 +81,25 @@ public class GameApp extends JFrame {
         }
     }
 
+    private void startMusic() {
+        if (backgroundMusic != null) {
+            backgroundMusic.loop(Clip.LOOP_CONTINUOUSLY);
+        }
+    }
+
+    private void stopMusic() {
+        if (backgroundMusic != null && backgroundMusic.isRunning()) {
+            backgroundMusic.stop();
+        }
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        stopMusic(); // Stop music when the application is closed
+    }
+
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            GameApp app = new GameApp();
-            app.setVisible(true);
-            app.playArea.start();
-        });
+        new GameApp();
     }
 }

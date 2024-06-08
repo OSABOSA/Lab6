@@ -7,9 +7,7 @@ import java.util.List;
 public class PlayArea extends Wall {
     private boolean paused;
     private List<Ball> balls;
-
     private List<Wall> walls;
-
     private Player player;
 
     public void updatePlayerPosition(int x, int y) {
@@ -80,11 +78,11 @@ public class PlayArea extends Wall {
     }
 
     public void start() {
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                addWall(new Wall(100 + i * 100, 100 + j * 100, 50, 50, false));
-            }
-        }
+//        for (int i = 0; i < 3; i++) {
+//            for (int j = 0; j < 3; j++) {
+//                addWall(new Wall(100 + i * 100, 100 + j * 100, 50, 50, false));
+//            }
+//        }
         for (int i = 0; i < 5; i++) {
             addBall(new Ball(findEmptySpot(10), 10, Color.BLUE));
         }
