@@ -13,21 +13,41 @@ public class PlayArea extends Wall {
     private Player player;
     private GameApp gameApp;
     private Timer ballAdditionTimer;
+    private Timer gameTimer;
+    private float scale = 1;
 
     public PlayArea(GameApp gameApp) {
         this.gameApp = gameApp;
+        scale = gameApp.getScale();
         paused = false;
         balls = new ArrayList<>(); // Initialize the list of balls
         walls = new ArrayList<>();
         walls.add(new Wall());
-        player = new Player(0, 0, 10);
+        player = new Player(0, 0, scale * 10);
         setInbound(true);
 
         // Add a new ball every 30 seconds
-        ballAdditionTimer = new Timer(30000, e -> {
-            addBall(new Ball(findEmptySpot(10), 10, Color.BLUE));
+        ballAdditionTimer = new Timer(3000, e -> {
+            addBall(new Ball(findEmptySpot(scale * 10), scale * 10, Color.BLUE));
         });
         ballAdditionTimer.start();
+
+        gameTimer = new Timer(1, e -> {
+            if (!paused) {
+                for (Ball ball : balls) {
+                    ball.checkBoxCollision(walls);
+                    ball.checkBallCollision(balls);
+                    ball.move();
+                }
+                if (player.checkBallCollision(balls)) {
+                    System.out.println("Player collided with ball");
+                    // Show menu and stop the game
+                    gameApp.showMenu("Play Again", "Music on/off", "Quit game");
+                }
+
+                repaint();
+            }
+        });
     }
 
     public void updatePlayerPosition(int x, int y) {
@@ -50,6 +70,10 @@ public class PlayArea extends Wall {
         System.out.println("Ball added at: " + ball.getPosition());
     }
 
+    public int ballCount() {
+        return balls.size();
+    }
+
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -70,23 +94,6 @@ public class PlayArea extends Wall {
         }
     }
 
-    Timer gameTimer = new Timer(10, e -> {
-        if (!paused) {
-            for (Ball ball : balls) {
-                ball.checkBoxCollision(walls);
-                ball.checkBallCollision(balls);
-                ball.move();
-            }
-            if (player.checkBallCollision(balls)) {
-                System.out.println("Player collided with ball");
-                // Show menu and stop the game
-                gameApp.showMenu("Play Again", "Music on/off");
-            }
-
-            repaint();
-        }
-    });
-
     public void addWall(Wall wall) {
         walls.add(wall);
     }
@@ -94,7 +101,7 @@ public class PlayArea extends Wall {
     public void start() {
         balls.clear();
         for (int i = 0; i < 5; i++) {
-            addBall(new Ball(findEmptySpot(10), 10, Color.BLUE));
+            addBall(new Ball(findEmptySpot(scale * 10), scale * 10, Color.BLUE));
         }
         gameTimer.start();
     }
@@ -122,6 +129,10 @@ public class PlayArea extends Wall {
                     found = false;
                     break;
                 }
+            }
+            if (spotCopy.subtract(player.getPosition()).magnitude() < 3 * player.getRadius() + radius) {
+                found = false;
+                break;
             }
         }
         return spot;

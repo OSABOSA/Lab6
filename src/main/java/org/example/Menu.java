@@ -13,6 +13,7 @@ public class Menu extends JFrame {
         setTitle("Menu");
         setSize(400, 300);
         setLayout(new BorderLayout());
+        setUndecorated(true); // Remove window decorations
         setLocationRelativeTo(null); // Center the menu window
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 
@@ -23,7 +24,7 @@ public class Menu extends JFrame {
 
         buttonPanel = new JPanel();
         buttonPanel.setOpaque(false);
-        buttonPanel.setLayout(new GridLayout(3, 1, 10, 10));
+        buttonPanel.setLayout(new GridLayout(4, 1, 10, 10));
         add(buttonPanel, BorderLayout.CENTER);
 
         addKeyListener(new java.awt.event.KeyAdapter() {
@@ -43,6 +44,7 @@ public class Menu extends JFrame {
             button.addActionListener(this::handleButtonAction);
             buttonPanel.add(button);
         }
+        buttonPanel.add(new JLabel("Number of balls: " + gameApp.playArea.ballCount()), BorderLayout.SOUTH);
         revalidate();
         repaint();
     }
@@ -63,6 +65,9 @@ public class Menu extends JFrame {
                 break;
             case "Music on/off":
                 gameApp.toggleMusic();
+                break;
+            case "Quit game":
+                System.exit(0);
                 break;
             default:
                 break;

@@ -12,14 +12,18 @@ public class GameApp extends JFrame {
     public PlayArea playArea;
     private Menu menu;
     private Clip backgroundMusic;
-    private boolean musicOn = true;
+    private boolean musicOn = false;
 
     public GameApp() {
         // Set up the frame
         setTitle("Game App");
-        setSize(800, 600);
+        // make game app full screen
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setUndecorated(true);
+        setSize(Toolkit.getDefaultToolkit().getScreenSize());
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(null); // Use null layout for absolute positioning
+
 
         // Center the frame on the screen
         setLocationRelativeTo(null);
@@ -27,7 +31,7 @@ public class GameApp extends JFrame {
 
         // Create the play area
         playArea = new PlayArea(this);
-        playArea.setBounds(0, 0, 700, 500);
+        playArea.setBounds(0, 0, getWidth(), getHeight());
         add(playArea);
 
         // Create the menu as a separate window
@@ -38,7 +42,7 @@ public class GameApp extends JFrame {
             @Override
             public void keyPressed(java.awt.event.KeyEvent e) {
                 if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ESCAPE) {
-                    showMenu("Resume", "Music on/off");
+                    showMenu("Resume", "Music on/off", "Quit game");
                 }
             }
         });
@@ -70,8 +74,14 @@ public class GameApp extends JFrame {
 
         SwingUtilities.invokeLater(() -> {
             setVisible(true);
-            showMenu("Play", "Music on/off");
+            showMenu("Play", "Music on/off", "Quit game");
         });
+
+        toggleMusic();
+    }
+
+    public float getScale() {
+        return Toolkit.getDefaultToolkit().getScreenResolution() / 32f;
     }
 
     public void showMenu(String... options) {
